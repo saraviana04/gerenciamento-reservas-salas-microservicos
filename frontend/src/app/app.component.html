@@ -1,0 +1,122 @@
+<div class="app">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Microservicos + RabbitMQ</p>
+      <h1>Gerenciamento de Reservas</h1>
+      <p class="subtitle">Frontend Angular para testar usuarios, salas e reservas.</p>
+    </div>
+    <div class="hero-card">
+      <h3>Atalho rapido</h3>
+      <ol>
+        <li>Suba os servicos Java</li>
+        <li>Configure os endpoints</li>
+        <li>Crie usuarios, salas e reservas</li>
+      </ol>
+    </div>
+  </header>
+
+  <section class="grid">
+    <div class="card">
+      <h2>Endpoints</h2>
+      <p class="muted">Voce pode alterar e salvar as URLs dos servicos.</p>
+
+      <label>Usuarios</label>
+      <input [(ngModel)]="baseUsuarios" placeholder="http://localhost:8081" />
+
+      <label>Salas</label>
+      <input [(ngModel)]="baseSalas" placeholder="http://localhost:8082" />
+
+      <label>Reservas</label>
+      <input [(ngModel)]="baseReservas" placeholder="http://localhost:8083" />
+
+      <div class="actions">
+        <button type="button" class="ghost" (click)="salvarConfig()">Salvar</button>
+        <button type="button" (click)="testarConexao()">Testar conexao</button>
+      </div>
+
+      <p class="status" [ngClass]="pingStatus.kind" *ngIf="pingStatus.message">
+        {{ pingStatus.message }}
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Criar usuario</h2>
+      <label>Email</label>
+      <input [(ngModel)]="usuarioForm.email" placeholder="user@exemplo.com" />
+
+      <label>Senha</label>
+      <input [(ngModel)]="usuarioForm.senha" type="password" placeholder="123456" />
+
+      <label>Role</label>
+      <input [(ngModel)]="usuarioForm.role" placeholder="ADMIN ou USER" />
+
+      <button type="button" (click)="criarUsuario()">Criar usuario</button>
+      <p class="status" [ngClass]="usuarioStatus.kind" *ngIf="usuarioStatus.message">
+        {{ usuarioStatus.message }}
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Criar sala</h2>
+      <label>Nome</label>
+      <input [(ngModel)]="salaForm.nome" placeholder="Sala Azul" />
+
+      <label>Capacidade</label>
+      <input [(ngModel)]="salaForm.capacidade" type="number" min="1" />
+
+      <label>Descricao</label>
+      <input [(ngModel)]="salaForm.descricao" placeholder="Projetor, quadro, wifi" />
+
+      <button type="button" (click)="criarSala()">Criar sala</button>
+      <p class="status" [ngClass]="salaStatus.kind" *ngIf="salaStatus.message">
+        {{ salaStatus.message }}
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Criar reserva</h2>
+      <div class="row">
+        <div>
+          <label>ID Sala</label>
+          <input [(ngModel)]="reservaForm.salaId" type="number" min="1" />
+        </div>
+        <div>
+          <label>ID Usuario</label>
+          <input [(ngModel)]="reservaForm.usuarioId" type="number" min="1" />
+        </div>
+      </div>
+
+      <label>Data/Hora</label>
+      <input [(ngModel)]="reservaForm.dataReserva" type="datetime-local" />
+
+      <label>Duracao (horas)</label>
+      <input [(ngModel)]="reservaForm.duracaoHoras" type="number" min="1" max="8" />
+
+      <label>Status</label>
+      <select [(ngModel)]="reservaForm.status">
+        <option value="PENDENTE">PENDENTE</option>
+        <option value="APROVADA">APROVADA</option>
+        <option value="REJEITADA">REJEITADA</option>
+      </select>
+
+      <button type="button" (click)="criarReserva()">Criar reserva</button>
+      <p class="status" [ngClass]="reservaStatus.kind" *ngIf="reservaStatus.message">
+        {{ reservaStatus.message }}
+      </p>
+    </div>
+
+    <div class="card wide">
+      <h2>Listar dados</h2>
+      <p class="muted">Use para validar rapidamente o que foi criado.</p>
+
+      <div class="actions">
+        <button type="button" class="ghost" (click)="listarUsuarios()">Usuarios</button>
+        <button type="button" class="ghost" (click)="listarSalas()">Salas</button>
+        <button type="button" class="ghost" (click)="listarReservas()">Reservas</button>
+      </div>
+
+      <h3>{{ listTitle }}</h3>
+      <pre class="output">{{ listOutput || 'Nenhum dado ainda.' }}</pre>
+    </div>
+  </section>
+</div>
