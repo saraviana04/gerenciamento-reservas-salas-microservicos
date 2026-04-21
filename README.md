@@ -25,7 +25,7 @@ Projeto demonstrativo de microservicos com mensageria RabbitMQ e frontend Angula
 
 **Frontend**
 - Angular 17 + TypeScript
-- Endpoints configuraveis na tela
+- Consome os microservicos via proxy do Angular (dev)
 
 ## Requisitos
 - Java 17+
@@ -71,11 +71,16 @@ npm install
 npm start
 ```
 Abra `http://localhost:4200`.
+As chamadas para `/api/usuarios`, `/api/salas` e `/api/reservas` sao encaminhadas para os servicos nas portas 8081-8083 via `frontend/proxy.conf.json`.
 
 ## Exemplo de chamada (reserva)
 ```bash
-curl -X POST http://localhost:8083/api/reservas   -H 'Content-Type: application/json'   -d '{"salaId":1,"usuarioId":1,"dataReserva":"2030-01-01T10:00:00","duracaoHoras":2,"status":"PENDENTE"}'
+curl -X POST http://localhost:8083/api/reservas   -H 'Content-Type: application/json'   -d '{"salaId":1,"usuarioId":1,"dataReserva":"2030-01-01T10:00:00"}'
 ```
+Observacoes:
+- A duracao da reserva e fixa em 2 horas.
+- Se houver conflito de horario na mesma sala, o servico retorna HTTP 409.
+- O `DELETE /api/reservas/{id}` faz cancelamento (nao apaga o registro).
 
 ## Parar tudo
 ```bash

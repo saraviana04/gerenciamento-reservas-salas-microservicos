@@ -9,12 +9,17 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reservas")
 @Data
 public class Reserva {
+    public static final int DURACAO_PADRAO_HORAS = 2;
+    public static final String STATUS_ATIVA = "ATIVA";
+    public static final String STATUS_CANCELADA = "CANCELADA";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -39,7 +44,13 @@ public class Reserva {
     private Integer duracaoHoras;
 
     @NotBlank
-    @Pattern(regexp = "PENDENTE|APROVADA|REJEITADA")
+    @Pattern(regexp = "ATIVA|CANCELADA")
     @Column(nullable = false)
     private String status;
+
+    @Transient
+    public LocalDateTime getDataFim() {
+        if (dataReserva == null || duracaoHoras == null) return null;
+        return dataReserva.plus(Duration.ofHours(duracaoHoras));
+    }
 }

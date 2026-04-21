@@ -19,13 +19,19 @@ interface Sala {
   descricao?: string;
 }
 
-interface Reserva {
+interface ReservaUpsertRequest {
+  salaId: number;
+  usuarioId: number;
+  dataReserva: string;
+}
+
+interface ReservaResponse {
   id?: number;
   salaId: number;
   usuarioId: number;
   dataReserva: string;
   duracaoHoras: number;
-  status: 'PENDENTE' | 'APROVADA' | 'REJEITADA';
+  status: 'ATIVA' | 'CANCELADA';
 }
 
 @Component({
@@ -36,10 +42,6 @@ interface Reserva {
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  baseUsuarios = this.loadBase('baseUsuarios', 'http://localhost:8081');
-  baseSalas = this.loadBase('baseSalas', 'http://localhost:8082');
-  baseReservas = this.loadBase('baseReservas', 'http://localhost:8083');
-
   pingStatus: { kind: StatusKind; message: string } = { kind: 'idle', message: '' };
   usuarioStatus: { kind: StatusKind; message: string } = { kind: 'idle', message: '' };
   salaStatus: { kind: StatusKind; message: string } = { kind: 'idle', message: '' };
@@ -47,12 +49,10 @@ export class AppComponent {
 
   usuarioForm: Usuario = { email: '', senha: '', role: 'USER' };
   salaForm: Sala = { nome: '', capacidade: 10, descricao: '' };
-  reservaForm: Reserva = {
+  reservaForm: ReservaUpsertRequest = {
     salaId: 1,
     usuarioId: 1,
-    dataReserva: this.defaultDateTime(),
-    duracaoHoras: 2,
-    status: 'PENDENTE'
+    dataReserva: this.defaultDateTime()
   };
 
   listTitle = 'Nenhum resultado ainda';
@@ -60,18 +60,12 @@ export class AppComponent {
 
   constructor(private readonly http: HttpClient) {}
 
-  salvarConfig() {
-    this.saveBase('baseUsuarios', this.baseUsuarios);
-    this.saveBase('baseSalas', this.baseSalas);
-    this.saveBase('baseReservas', this.baseReservas);
-  }
-
   async testarConexao() {
     this.pingStatus = { kind: 'loading', message: 'Testando conexao...' };
     const targets = [
-      { name: 'usuarios', url: this.normalize(this.baseUsuarios) + '/api/usuarios' },
-      { name: 'salas', url: this.normalize(this.baseSalas) + '/api/salas' },
-      { name: 'reservas', url: this.normalize(this.baseReservas) + '/api/reservas' }
+      { name: 'usuarios', url: '/api/usuarios' },
+      { name: 'salas', url: '/api/salas' },
+      { name: 'reservas', url: '/api/reservas' }
     ];
 
     const results: string[] = [];
@@ -95,7 +89,7 @@ export class AppComponent {
       role: this.usuarioForm.role.trim() || 'USER'
     };
     this.http
-      .post<Usuario>(this.normalize(this.baseUsuarios) + '/api/usuarios', payload)
+      .post<Usuario>('/api/usuarios', payload)
       .subscribe({
         next: (data) => {
           this.usuarioStatus = {
@@ -116,7 +110,7 @@ export class AppComponent {
       descricao: this.salaForm.descricao?.trim() || ''
     };
     this.http
-      .post<Sala>(this.normalize(this.baseSalas) + '/api/salas', payload)
+      .post<Sala>('/api/salas', payload)
       .subscribe({
         next: (data) => {
           this.salaStatus = { kind: 'ok', message: `Sala criada (id ${data.id})` };
@@ -128,15 +122,13 @@ export class AppComponent {
 
   criarReserva() {
     this.reservaStatus = { kind: 'loading', message: 'Criando reserva...' };
-    const payload: Reserva = {
+    const payload: ReservaUpsertRequest = {
       salaId: Number(this.reservaForm.salaId),
       usuarioId: Number(this.reservaForm.usuarioId),
-      dataReserva: this.toLocalDateTime(this.reservaForm.dataReserva),
-      duracaoHoras: Number(this.reservaForm.duracaoHoras),
-      status: this.reservaForm.status
+      dataReserva: this.toLocalDateTime(this.reservaForm.dataReserva)
     };
     this.http
-      .post<Reserva>(this.normalize(this.baseReservas) + '/api/reservas', payload)
+      .post<ReservaResponse>('/api/reservas', payload)
       .subscribe({
         next: (data) => {
           this.reservaStatus = { kind: 'ok', message: `Reserva criada (id ${data.id})` };
@@ -150,15 +142,15 @@ export class AppComponent {
   }
 
   listarUsuarios() {
-    this.listar('Usuarios', this.normalize(this.baseUsuarios) + '/api/usuarios');
+    this.listar('Usuarios', '/api/usuarios');
   }
 
   listarSalas() {
-    this.listar('Salas', this.normalize(this.baseSalas) + '/api/salas');
+    this.listar('Salas', '/api/salas');
   }
 
   listarReservas() {
-    this.listar('Reservas', this.normalize(this.baseReservas) + '/api/reservas');
+    this.listar('Reservas', '/api/reservas');
   }
 
   private listar(titulo: string, url: string) {
@@ -174,19 +166,6 @@ export class AppComponent {
         this.listOutput = this.formatError(err);
       }
     });
-  }
-
-  private normalize(base: string) {
-    return base.trim().replace(/\/$/, '');
-  }
-
-  private loadBase(key: string, fallback: string) {
-    const saved = localStorage.getItem(key);
-    return saved ? saved : fallback;
-  }
-
-  private saveBase(key: string, value: string) {
-    localStorage.setItem(key, value.trim());
   }
 
   private setError(target: { kind: StatusKind; message: string }, err: unknown) {

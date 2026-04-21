@@ -3,34 +3,24 @@
     <div>
       <p class="eyebrow">Microservicos + RabbitMQ</p>
       <h1>Gerenciamento de Reservas</h1>
-      <p class="subtitle">Frontend Angular para testar usuarios, salas e reservas.</p>
+      <p class="subtitle">Frontend Angular para gerenciar usuarios, salas e reservas.</p>
     </div>
     <div class="hero-card">
       <h3>Atalho rapido</h3>
       <ol>
         <li>Suba os servicos Java</li>
-        <li>Configure os endpoints</li>
         <li>Crie usuarios, salas e reservas</li>
+        <li>Valide a lista de dados</li>
       </ol>
     </div>
   </header>
 
   <section class="grid">
     <div class="card">
-      <h2>Endpoints</h2>
-      <p class="muted">Voce pode alterar e salvar as URLs dos servicos.</p>
-
-      <label>Usuarios</label>
-      <input [(ngModel)]="baseUsuarios" placeholder="http://localhost:8081" />
-
-      <label>Salas</label>
-      <input [(ngModel)]="baseSalas" placeholder="http://localhost:8082" />
-
-      <label>Reservas</label>
-      <input [(ngModel)]="baseReservas" placeholder="http://localhost:8083" />
+      <h2>Conexao</h2>
+      <p class="muted">Verifica se os 3 servicos estao respondendo (via proxy do Angular).</p>
 
       <div class="actions">
-        <button type="button" class="ghost" (click)="salvarConfig()">Salvar</button>
         <button type="button" (click)="testarConexao()">Testar conexao</button>
       </div>
 
@@ -88,16 +78,7 @@
 
       <label>Data/Hora</label>
       <input [(ngModel)]="reservaForm.dataReserva" type="datetime-local" />
-
-      <label>Duracao (horas)</label>
-      <input [(ngModel)]="reservaForm.duracaoHoras" type="number" min="1" max="8" />
-
-      <label>Status</label>
-      <select [(ngModel)]="reservaForm.status">
-        <option value="PENDENTE">PENDENTE</option>
-        <option value="APROVADA">APROVADA</option>
-        <option value="REJEITADA">REJEITADA</option>
-      </select>
+      <p class="muted">Duracao fixa: 2 horas.</p>
 
       <button type="button" (click)="criarReserva()">Criar reserva</button>
       <p class="status" [ngClass]="reservaStatus.kind" *ngIf="reservaStatus.message">
